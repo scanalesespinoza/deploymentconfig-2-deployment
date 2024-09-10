@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,14 +6,10 @@
     <title>Deployment Config Input</title>
 </head>
 <body>
-    <h1>Submit DeploymentConfig</h1>
-    <form id="deploymentForm" action="/deploy" method="post" enctype="multipart/form-data">
+    <h1>Submit DeploymentConfig YAML</h1>
+    <form id="deploymentForm">
         <label for="dcText">Enter DeploymentConfig YAML:</label><br>
         <textarea id="dcText" name="dcText" rows="10" cols="50"></textarea><br><br>
-
-        <label for="dcFile">Or upload a YAML file:</label><br>
-        <input type="file" id="dcFile" name="dcFile"><br><br>
-
         <input type="submit" value="Submit">
     </form>
 
@@ -24,14 +19,19 @@
     <script>
         document.getElementById('deploymentForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            const formData = new FormData(this);
+            const dcText = document.getElementById('dcText').value;
+
             fetch('/deploy', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'text/plain',
+                },
+                body: dcText
             })
-            .then(response => response.json())
+            .then(response => response.text())
             .then(data => {
-                document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+                 console.log(data);
+                document.getElementById('output').textContent = data;
             })
             .catch(error => console.error('Error:', error));
         });
