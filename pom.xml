@@ -9,10 +9,12 @@
     <maven.compiler.release>21</maven.compiler.release>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
-    <quarkus-plugin.version>2.0.0.Final</quarkus-plugin.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <quarkus-plugin.version>3.9.3</quarkus-plugin.version>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>2.0.0.Final</quarkus.platform.version>
+    <quarkus.platform.version>3.9.3</quarkus.platform.version>
+    <surefire-plugin.version>3.2.5</surefire-plugin.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -35,14 +37,13 @@
       <artifactId>quarkus-resteasy-jackson</artifactId>
     </dependency>
     <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-container-image-jib</artifactId>
+    </dependency>    
+    <dependency>
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
       <version>1.29</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-multipart-provider</artifactId>
-      <version>6.2.10.Final</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -51,7 +52,6 @@
     <dependency>
       <groupId>io.quarkus.resteasy.reactive</groupId>
       <artifactId>resteasy-reactive-jsonb</artifactId>
-      <version>3.14.2</version>
     </dependency>
   </dependencies>
   <build>
@@ -63,12 +63,45 @@
         <executions>
           <execution>
             <goals>
-              <goal>build</goal>
-              <goal>generate-code</goal>
+                <goal>build</goal>
             </goals>
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${surefire-plugin.version}</version>
+        <executions>
+            <execution>
+                <goals>
+                    <goal>integration-test</goal>
+                    <goal>verify</goal>
+                </goals>
+            </execution>
+        </executions>
+        <configuration>
+            <systemPropertyVariables>
+                <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
+                <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                <maven.home>${maven.home}</maven.home>
+            </systemPropertyVariables>
+        </configuration>
+    </plugin>
     </plugins>
   </build>
+  
+  <profiles>
+    <profile>
+        <id>native</id>
+        <activation>
+            <property>
+                <name>native</name>
+            </property>
+        </activation>
+        <properties>
+            <skipITs>true</skipITs>
+            <quarkus.package.type>native</quarkus.package.type>
+        </properties>
+    </profile>
+</profiles>
 </project>
