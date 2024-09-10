@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deployment Config Input</title>
+</head>
+<body>
+    <h1>Submit DeploymentConfig</h1>
+    <form id="deploymentForm" action="/deploy" method="post" enctype="multipart/form-data">
+        <label for="dcText">Enter DeploymentConfig YAML:</label><br>
+        <textarea id="dcText" name="dcText" rows="10" cols="50"></textarea><br><br>
+
+        <label for="dcFile">Or upload a YAML file:</label><br>
+        <input type="file" id="dcFile" name="dcFile"><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <h2>Output Deployment YAML</h2>
+    <pre id="output"></pre>
+
+    <script>
+        document.getElementById('deploymentForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            fetch('/deploy', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
