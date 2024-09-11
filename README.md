@@ -8,8 +8,8 @@ This tool is a Quarkus-based application that converts OpenShift `DeploymentConf
 - Handles transformations such as changing `apiVersion`, `kind`, `spec`, and removing unwanted fields from metadata.
 - Provides both a user-friendly web interface and a REST API.
 
-## Releases
-- Container Image: podman pull quay.io/sergio_canales_e/quarkus/dc2d:1.0.0-SNAPSHOT
+## Available images
+- `podman pull quay.io/sergio_canales_e/quarkus/dc2d:1.0.0-SNAPSHOT`
 
 ## Table of Contents
 - [Installation](#installation)
