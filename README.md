@@ -27,7 +27,8 @@ This tool is a Quarkus-based application that converts OpenShift `DeploymentConf
 - Docker (optional, for containerized builds)
 
 ### K8s Install
-   ```bash
+
+   ``bash
    # K8s
    kubectl apply -f k8s/deployment.yaml
    kubectl apply -f k8s/service.yaml
@@ -35,13 +36,14 @@ This tool is a Quarkus-based application that converts OpenShift `DeploymentConf
    oc apply -f k8s/deployment.yaml
    oc apply -f k8s/service.yaml
    oc apply -f k8s/route.yaml
-   ``
+   ```
 
 ### Podman
+
    ```bash
    podman pull quay.io/sergio_canales_e/quarkus/dc2d:1.0.0-SNAPSHOT
    podman run -p 8080:8080 dc2d:1.0.0-SNAPSHOT
-   ``
+   ```
 
 ### Build the Application
 1. Clone the repository:
