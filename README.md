@@ -28,7 +28,7 @@ This tool is a Quarkus-based application that converts OpenShift `DeploymentConf
 
 ### K8s Install
 
-   ``bash
+   ```bash
    # K8s
    kubectl apply -f k8s/deployment.yaml
    kubectl apply -f k8s/service.yaml
