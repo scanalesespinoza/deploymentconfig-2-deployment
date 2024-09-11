@@ -1,0 +1,20 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: dc2d
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dc2d
+  template:
+    metadata:
+      labels:
+        app: dc2d
+    spec:
+      containers:
+        - name: container
+          image: 'quay.io/sergio_canales_e/quarkus/dc2d:1.0.0-SNAPSHOT'
+          ports:
+            - containerPort: 8080
+              protocol: TCP

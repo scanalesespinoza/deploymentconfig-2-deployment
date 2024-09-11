@@ -1,0 +1,17 @@
+kind: Route
+apiVersion: route.openshift.io/v1 #Openshift Only
+metadata:
+  name: dc-migration
+  labels:
+    app: dc2d
+spec:
+  to:
+    kind: Service
+    name: dc2d
+    weight: 100
+  port:
+    targetPort: http-80
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: None
+  wildcardPolicy: None
