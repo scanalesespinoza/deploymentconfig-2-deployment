@@ -41,8 +41,8 @@ This tool is a Quarkus-based application that converts OpenShift `DeploymentConf
 ### Podman
 
    ```bash
-   podman pull quay.io/sergio_canales_e/quarkus/dc2d:1.0.0-SNAPSHOT
-   podman run -p 8080:8080 dc2d:1.0.0-SNAPSHOT
+   podman pull quay.io/sergio_canales_e/quarkus/dc2d:[TAG]
+   podman run -p 8080:8080 dc2d:[TAG]
    ```
 
 ### Build the Application
@@ -150,47 +150,6 @@ spec:
         - name: example
           image: example-image
 ```
-
-## Running on OpenShift
-
-You can deploy this application as a Knative service on OpenShift. Follow these steps:
-
-1. Build the application using a native image:
-
-   ```bash
-   mvn clean package -Pnative -Dquarkus.native.container-build=true
-   ```
-
-2. Create a Docker container image for the application:
-
-   ```bash
-   docker build -t quay.io/<username>/deployment-converter:latest .
-   docker push quay.io/<username>/deployment-converter:latest
-   ```
-
-3. Create a `knative-service.yaml` file:
-
-   ```yaml
-   apiVersion: serving.knative.dev/v1
-   kind: Service
-   metadata:
-     name: deployment-converter
-   spec:
-     template:
-       spec:
-         containers:
-           - image: quay.io/<username>/deployment-converter:latest
-             ports:
-               - containerPort: 8080
-   ```
-
-4. Deploy the Knative service to OpenShift:
-
-   ```bash
-   oc apply -f knative-service.yaml
-   ```
-
-5. Once deployed, access the application via the Knative service URL provided by OpenShift.
 
 ## Building a Native Image
 
