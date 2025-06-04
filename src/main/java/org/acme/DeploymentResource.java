@@ -7,6 +7,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.DumperOptions;
 
 import java.util.Map;
 
@@ -17,7 +18,14 @@ public class DeploymentResource {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)  // Now returning plain text
     public Response createDeploymentConfig(String dcYaml) throws Exception {
-        Yaml yaml = new Yaml();
+
+        // Set dummper options
+        DumperOptions options = new DumperOptions();
+        options.setIndent(2);
+        options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+ 
+        Yaml yaml = new Yaml(options);
         Map<String, Object> dcMap = yaml.load(dcYaml);
 
         // 1. Change apiVersion
@@ -45,13 +53,20 @@ public class DeploymentResource {
         // 4. Ensure spec.selector.matchLabels is not empty and matches spec.template.metadata.labels
         Map<String, Object> spec = (Map<String, Object>) dcMap.get("spec");
         if (spec != null) {
+
+            // Store selector values because select will be cleared
+            Map<String, Object> selectorBackup = (Map<String, Object>) spec.get("selector");
+
             Map<String, Object> selector = (Map<String, Object>) spec.get("selector");
             if (selector == null) {
                 selector = new java.util.HashMap<>();
                 spec.put("selector", selector);
+            } else {
+                // Remove old labels from selector
+                selector.clear();
             }
 
-            Map<String, Object> matchLabels = (Map<String, Object>) selector.get("matchLabels");
+            Map<String, Object> matchLabels = (Map<String, Object>) selectorBackup.get("matchLabels");
             if (matchLabels == null) {
                 matchLabels = new java.util.HashMap<>();
                 selector.put("matchLabels", matchLabels);
@@ -88,14 +103,53 @@ public class DeploymentResource {
                 }
             }
 
-            // 6. Remove spec.triggers
+            // 6. Modify spec.strategy
+            Map<String, Object> strategy = (Map<String, Object>) spec.get("strategy");
+            if (strategy != null) {
+                // strategy: replace Rolling with RollingUpdate
+                String type = (String) strategy.get("type");
+                if ("Rolling".equals(type)) {
+                strategy.put("type", "RollingUpdate");
+                }
+
+                // strategy: modify rollingParams
+                Map<String, Object> rollingParams = (Map<String, Object>) strategy.get("rollingParams");
+                if (rollingParams != null) {
+                    // Remove spec.strategy.rollingParams.updatePeriodSeconds
+                    rollingParams.remove("updatePeriodSeconds");
+
+                    // Remove spec.strategy.rollingParams.intervalSeconds
+                    rollingParams.remove("intervalSeconds");
+
+                    // Remove spec.strategy.rollingParams.timeoutSeconds
+                    rollingParams.remove("timeoutSeconds");
+                }
+
+                //replace rollingParams with rollingUpdate
+                Map<String, Object> rollingUpdate = rollingParams;
+                if (rollingUpdate != null) {
+                    strategy.put("rollingUpdate", rollingUpdate);
+                }
+                strategy.remove("rollingParams");
+
+                // strategy: remove spec.strategy.resources
+                strategy.remove("resources");
+ 
+                // strategy: remove spec.strategy.activeDeadlineSeconds
+                strategy.remove("activeDeadlineSeconds");
+            }
+            
+
+            // 7. Remove spec.triggers
             spec.remove("triggers");
 
-            // 7. Remove spec.strategy
-            spec.remove("strategy");
+            // 8. Remove spec.test
+            spec.remove("test");
 
-            // 8. Remove status block if it exists
+
+            // 9. Remove status block if it exists
             dcMap.remove("status");
+            
         }
 
         // Convert back to YAML
