@@ -16,7 +16,6 @@ This tool is a Quarkus-based application that converts OpenShift `DeploymentConf
 - [Usage](#usage)
   - [Web Interface](#web-interface)
   - [REST API](#rest-api)
-- [Running on OpenShift](#running-on-openshift)
 - [Building a Native Image](#building-a-native-image)
 
 ## Installation
